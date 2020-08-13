@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<mujoco>
+  <option timestep="0.0002" cone="elliptic" collision="all" solver="Newton" gravity="0 0 -9.8"/>
+  <visual>
+    <scale framelength="0.5" framewidth="0.01"/>
+  </visual>
+  <worldbody>
+    <body name="robot" pos="0 0 0.04">
+      <geom mass="1.0" pos="0 0 0" rgba="1 0 0 0.1" size="0.2 0.02" type="cylinder"/>
+      <camera euler="0 0 0" fovy="40" name="rgbd" pos="0 0 1.5"></camera>
+      <body name="l1_front" pos="0 0.068 0.05"  quat="-0.707 0 0 -0.707">
+        <joint axis="0 1 0" damping="0.1" name="r1_front" pos="-0.02 0 -0.005" type="hinge"/>
+        <geom mass = "0.01" size="0.02 0.015 0.005" rgba="0 0 1 1" type="box"/>
+        <body name="l11_front" pos="0.025 0.0 0.05825" >
+          <geom mass = "0.01" size="0.005 0.015 0.06325" rgba="0 0 1 1" type="box"/>
+          <body name="l2_front" pos="-0.01 0.0 0.05825" >
+            <joint axis="1 0 0" damping="0.1" name="r2_front" pos="0 0 0" type="hinge"/>
+            <geom mass = "0.01" size="0.005 0.005 0.025" rgba="0 0 1 1" type="box"/>
+            <body name="l3_front" pos="-0.035 0 0">
+              <joint axis="0 0 1" damping="0.1" name="r3_front" pos="0 0 0" type="hinge"/>
+              <geom name="l3_front" mass = "0.01" size="0.0215" rgba="1 0 1 1" type="sphere"/>
+            </body>
+            <body name="l31_front" pos="-0.023 0.0 -0.0235">
+              <geom mass = "0.005" size="0.018 0.002 0.0015" rgba="0 0 1 1" type="box"/>
+            </body>
+            <body name="l32_front" pos="-0.023 0.0 0.0235">
+              <geom mass = "0.005" size="0.018 0.002 0.0015" rgba="0 0 1 1" type="box"/>
+            </body>
+          </body>
+        </body> 
+      </body> 
+      <body name="l1_left" pos="-0.05889 -0.034 0.05"  quat="-0.259 0 0 0.966">
+        <joint axis="0 1 0" damping="0.1" name="r1_left" pos="-0.02 0 -0.005" type="hinge"/>
+        <geom mass = "0.01" size="0.02 0.015 0.005" rgba="0 0 1 1" type="box"/>
+        <body name="l11_left" pos="0.025 0.0 0.05825" >
+          <geom mass = "0.01" size="0.005 0.015 0.06325" rgba="0 0 1 1" type="box"/>
+          <body name="l2_left" pos="-0.01 0.0 0.05825" >
+            <joint axis="1 0 0" damping="0.1" name="r2_left" pos="0 0 0" type="hinge"/>
+            <geom mass = "0.01" size="0.005 0.005 0.025" rgba="0 0 1 1" type="box"/>
+            <body name="l3_left" pos="-0.035 0 0">
+              <joint axis="0 0 1" damping="0.1" name="r3_left" pos="0 0 0" type="hinge"/>
+              <geom name="l3_left" mass = "0.01" size="0.0215" rgba="1 0 1 1" type="sphere"/>
+            </body>
+            <body name="l31_left" pos="-0.023 0.0 -0.0235">
+              <geom mass = "0.005" size="0.018 0.002 0.0015" rgba="0 0 1 1" type="box"/>
+            </body>
+            <body name="l32_left" pos="-0.023 0.0 0.0235">
+              <geom mass = "0.005" size="0.018 0.002 0.0015" rgba="0 0 1 1" type="box"/>
+            </body>
+          </body>
+        </body> 
+      </body> 
+      <body name="l1_right" pos="0.05889 -0.034 0.05"  quat="-0.966 0 0 0.259">
+        <joint axis="0 1 0" damping="0.1" name="r1_right" pos="-0.02 0 -0.005" type="hinge"/>
+        <geom mass = "0.01" size="0.02 0.015 0.005" rgba="0 0 1 1" type="box"/>
+        <body name="l11_right" pos="0.025 0.0 0.05825" >
+          <geom mass = "0.01" size="0.005 0.015 0.06325" rgba="0 0 1 1" type="box"/>
+          <body name="l2_right" pos="-0.01 0.0 0.05825" >
+            <joint axis="1 0 0" damping="0.1" name="r2_right" pos="0 0 0" type="hinge"/>
+            <geom mass = "0.01" size="0.005 0.005 0.025" rgba="0 0 1 1" type="box"/>
+            <body name="l3_right" pos="-0.035 0 0">
+              <joint axis="0 0 1" damping="0.1" name="r3_right" pos="0 0 0" type="hinge"/>
+              <geom name="l3_right" mass = "0.01" size="0.0215" rgba="1 0 1 1" type="sphere"/>
+            </body>
+            <body name="l31_right" pos="-0.023 0.0 -0.0235">
+              <geom mass = "0.005" size="0.018 0.002 0.0015" rgba="0 0 1 1" type="box"/>
+            </body>
+            <body name="l32_right" pos="-0.023 0.0 0.0235">
+              <geom mass = "0.005" size="0.018 0.002 0.0015" rgba="0 0 1 1" type="box"/>
+            </body>
+          </body>
+        </body> 
+      </body> 
+    </body>
+    <body name="floor" pos="0 0 0">
+       <geom size="1.0 1.0 0.02" rgba="0 1 0 1" type="box"/>
+    </body> 
+    <body name = "cube" pos = "0. 0. 0.2" quat = "1.0 0.0 0.0 0.0">
+        <joint damping = "0" name = "cube" pos = "0 0 0" type = "free"/>
+        <geom name = "cube" density = "150" size = "0.03 0.03 0.03" rgba = "1 1 1 0.5" type = "box"/>
+    </body>
+ 
+  </worldbody>
+
+  <default>
+     <geom contype="1" conaffinity="1" condim="3" solref="0.001 1.5" solimp="0.95 0.95 .01"/>
+  </default>
+
+  <sensor>
+     <jointpos name="j1" joint="r1_front"/>
+     <jointpos name="j2" joint="r2_front"/>
+     <jointpos name="j3" joint="r3_front"/>
+     <jointpos name="j4" joint="r1_left"/>
+     <jointpos name="j5" joint="r2_left"/>
+     <jointpos name="j6" joint="r3_left"/>
+     <jointpos name="j7" joint="r1_right"/>
+     <jointpos name="j8" joint="r2_right"/>
+     <jointpos name="j9" joint="r3_right"/>
+     <framepos name="boxpos" objtype="body" objname="cube"/>
+     <framequat name="boxorient" objtype="body" objname="cube"/>
+  </sensor>
+  
+  <actuator>
+    <position name="motor1" kp="0.75" forcelimited="true" forcerange="-0.5 2" gear="3" joint="r1_front"/>
+    <position name="motor4" kp="0.75" forcelimited="true" forcerange="-0.5 2" gear="3" joint="r1_left"/>
+    <position name="motor7" kp="0.75" forcelimited="true" forcerange="-0.5 2" gear="3" joint="r1_right"/>
+    <position name="motor2" ctrllimited="true" ctrlrange="-15.7 15.7" gear="10" joint="r2_front"/>
+    <position name="motor5" ctrllimited="true" ctrlrange="-15.7 15.7" gear="10" joint="r2_left"/>
+    <position name="motor8" ctrllimited="true" ctrlrange="-15.7 15.7" gear="10" joint="r2_right"/>
+    <position name="motor3" ctrllimited="false" gear="1" joint="r3_front"/>
+    <position name="motor6" ctrllimited="false" gear="1" joint="r3_left"/>
+    <position name="motor9" ctrllimited="false" gear="1" joint="r3_right"/>
+  </actuator>
+</mujoco>
