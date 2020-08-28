@@ -39,10 +39,10 @@ The circuit diagram can be found in the paper.
 ## 
 If you find this work helpful, please cite with the following bibtex:
 
-'''
+```
 @INPROCEEDINGS{rollergrasperV2,  
 author={S. {Yuan} and L. {Shao} and C. L. {Yako} and A. {Gruebele} and J. K. {Salisbury}},  
 booktitle={2020 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},   
 title={Design and Control of Roller Grasper V2 for In-Hand Manipulation},   
 year={2020}}
-'''
+```
