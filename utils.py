@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from scipy.spatial.transform import Rotation as R
 
 
@@ -245,7 +246,7 @@ def get_base_axis(finger_normal):
     return np.cross(np.array([0, 0, 1]), finger_normal)
 
 
-def get_quat_error(quat_1, quat_2):
+def get_quat_error_v1(quat_1, quat_2):
     """
     Find the distance between two quaternions (w, x, y, z)
     :param quat_1: the first quaternion
@@ -257,6 +258,18 @@ def get_quat_error(quat_1, quat_2):
                          [-quat_1[2], quat_1[1], 0]])
     ori_err = quat_1[0] * quat_2[1:4] - quat_2[0] * quat_1[1:4] - np.matmul(skew_mat, quat_2[1:4])
     return np.linalg.norm(ori_err)
+
+def get_quat_error(quat_1, quat_2):
+    """
+    Find the distance between two quaternions (w, x, y, z)
+    :param quat_1: the first quaternion
+    :param quat_2: the second quaternion
+    :return: distance between the two quats
+    """
+    ori_err = min(np.linalg.norm(quat_1 - quat_2),np.linalg.norm(quat_1 + quat_2))
+    ori_err = ori_err / math.sqrt(2)
+    return ori_err
+
 
 
 def get_pos_error(pos1, pos2):
@@ -311,7 +324,7 @@ def compute_pivot_and_roller(k_vw, k_vv, base_angle, pos_obj_curr, pos_obj_targe
     finger_dir = get_finger_dir(pivot_axis, base_axis)      # direction along finger
     pos_roller = pos_base + finger_length * finger_dir      # position of the roller (calculated based on base joint)
 
-    err_quat = get_quat_error(ori_obj_curr, ori_obj_target)
+    err_quat = get_quat_error_v1(ori_obj_curr, ori_obj_target)
     obj_axis = get_obj_axis(ori_obj_curr, ori_obj_target)   # desired axis of rotation
     err_pos = get_pos_error(pos_obj_curr, pos_obj_target)
     kw = err_quat
@@ -436,10 +449,10 @@ def compute_joints(k_vw, k_vv, base_angle, pos_obj_curr, pos_obj_target, ori_obj
     p_ro = pos_obj_curr - pos_roller    # roller center to object center
     pos_contact = pos_roller + r_roller * p_ro / np.linalg.norm(p_ro)  # contact position
 
-    r_effective_base = distance_between_lines(pos_base, base_axis, pos_contact, v_base)
-    r_effective_roller = distance_between_lines(pos_roller, pivot_axis, pos_contact, v_roller_resulted)
-
     rolling_axis, pivot_angle, if_up = get_rolling_axis(base_axis, pivot_axis, normalize_vec(v_roller_resulted))
+
+    r_effective_base = distance_between_lines(pos_base, base_axis, pos_contact, v_base)
+    r_effective_roller = distance_between_lines(pos_roller, rolling_axis, pos_contact, v_roller_resulted)
 
     q_pivot = pivot_angle
     dq_base = 0

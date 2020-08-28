@@ -1,11 +1,9 @@
 from mujoco_py import load_model_from_path, MjSim, MjViewer
 from mujoco_py.generated import const
-import time
 from utils import *
 
 XML_PATH = "xml/roller_grasper_v2.xml"
 np.set_printoptions(precision=4, suppress=False)
-
 
 # Constants
 MAX_EPISODES = int(1e6)
@@ -62,13 +60,13 @@ class RobotEnv(object):
         self.r_fingers = [self.front_finger, self.left_finger, self.right_finger]
 
         # object target orientation in angle-axis representation
-        self.axis = normalize_vec(np.array([0.0, 1.0, 1.0]))
+        self.axis = normalize_vec(np.array([0., 1., 1.]))
         self.angle = deg_to_rad(90)
 
         self.init_box_pos = np.array([0.0, 0.0, 0.2])       # obj initial pos
         self.target_box_pos = np.array([0.0, 0.0, 0.2])     # obj target pos
 
-        self.max_step = 1000
+        self.max_step = 1500
         self.termination = False
         self.success = False
         self.timestep = 0
@@ -76,36 +74,44 @@ class RobotEnv(object):
         self.k_vw = 0.5
         self.k_vv = 0.3
 
-        self.session_name = str(self.axis) + ', ' + str(rad_to_deg(self.angle))
         self.reset()
 
-    def reset(self):
+    def reset(self, target_axis=np.array([0., 1., 1.]), target_angle=90):
 
         self.sim.reset()
 
+        # Reset finger positions
         for fg in self.r_fingers:
             self.sim.data.qpos[fg.idx*3] = fg.init_base_angle   # base angles
             self.sim.data.qpos[fg.idx*3+1] = 0                  # pivot angles
 
-        # qpos and ctrl have different joint orders (see mujoco)
-        my_map = [0, 3, 6, 1, 4, 7, 2, 5, 8]
+        my_map = [0, 3, 6, 1, 4, 7, 2, 5, 8]     # qpos and ctrl have different joint orders (see xml)
         for ii in range(9):
             self.sim.data.ctrl[ii] = self.sim.data.qpos[my_map[ii]]
-
         self.sim.step()
 
         self.termination = False
         self.success = False
         self.timestep = 0
+
+        # reset target
+        if target_axis is not None:
+            self.axis = normalize_vec(target_axis)
+        if target_angle is not None:
+            self.angle = deg_to_rad(target_angle)
         self.quat_target = np.array([np.cos(self.angle / 2),
                                      self.axis[0] * np.sin(self.angle / 2),
                                      self.axis[1] * np.sin(self.angle / 2),
                                      self.axis[2] * np.sin(self.angle / 2)])
         self.curr = self.sim.data.sensordata[-7:]  # quat_to_rot(self.sim.data.sensordata[-4:])
         self.rot_matrix_target = R.from_quat(quat_to_quat(self.quat_target)).as_matrix()
+        self.test_min_err = 100
 
-    def step(self):
-        self.timestep += 1
+        self.session_name = str(self.axis) + ', ' + str(rad_to_deg(self.angle))
+        return self.sim.data.sensordata
+
+
+    def get_expert_action(self):
         # Sensor data
         curr_data = self.sim.data.sensordata
         self.cube_pos = curr_data[-7:-4]        # obj position
@@ -127,51 +133,41 @@ class RobotEnv(object):
                                                                 pos_base=fg.pos_base,
                                                                 base_axis=fg.base_horizontal,
                                                                 finger_normal=fg.base_normal)
+
             dq_pivot = np.clip(fg.q_pivot-fg.q_pivot_prev, -fg.q_pivot_limit, fg.q_pivot_limit)
-            print(dq_pivot)
             fg.q_pivot = fg.q_pivot_prev + dq_pivot
+
+            self.sim.data.ctrl[fg.idx] = -fg.init_base_angle
             self.sim.data.ctrl[3+fg.idx] = fg.pivot_gear_ratio * fg.q_pivot
             self.sim.data.ctrl[6+fg.idx] += fg.dq_roller
+
+        action = np.copy(self.sim.data.ctrl)
+        return action 
+
+    def step(self, action):
+        for i in range(len(action)):
+            self.sim.data.ctrl[i] = action[i]
 
         self.viewer.add_overlay(const.GRID_TOPRIGHT, " ", self.session_name)
         self.viewer.render()
         self.sim.step()
+        self.timestep += 1
 
-        self.curr = self.sim.data.sensordata[-7:]
+        obs = self.sim.data.sensordata
+        curr = obs[-7:]         # object pose and orientation
 
-        err_curr_rot = get_quat_error(self.curr[3:], self.quat_target)
-        err_curr_pos = get_pos_error(self.curr[:3], self.target_box_pos)
+        err_curr_rot = get_quat_error(curr[3:], self.quat_target)
+        err_curr_pos = get_pos_error(curr[:3], self.target_box_pos)
         err_curr = SCALE_ERROR_ROT * err_curr_rot + SCALE_ERROR_POS * err_curr_pos
-        print("curr pos: ", self.curr[:3], "\t target pos: ", self.target_box_pos, "\t err curr: ", err_curr)
-
-        if err_curr < 12:
-            print("SUCCESS!")
+        self.test_min_err = min(self.test_min_err, err_curr_rot)
+        if err_curr < 15:
             self.termination = True
             self.success = True
         else:
             if self.timestep > self.max_step or err_curr_pos > 0.05:
                 self.termination = True
                 self.success = False
-        
-        return self.termination, self.success
-
-
-env = RobotEnv()
-
-
-def demo_loop():
-
-    for ep_ in range(MAX_EPISODES):
-        print('reset')
-        done = False
-        env.reset()
-        while not done: 
-            done, suc = env.step()
-            time.sleep(0.02)    # https://github.com/openai/mujoco-py/issues/340
-
-
-if __name__ == '__main__':
-    demo_loop()
-
-
+        #if self.termination:
+        #    print("target axis",self.axis,"success",self.success,"min_error",self.test_min_err)
+        return obs, self.termination, self.success
 
