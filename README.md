@@ -20,7 +20,7 @@ Firmware and serial communication API can be found at [rgSerial](https://github.
 ## Mechanical Design
 Coming soon... 
 
-### Electronics
+## Electronics
 The circuit diagram can be found in the paper. 
 
 [Teensy 3.6](http://www.robotis.us/dynamixel-xh430-w350-t/): handles serial communication and low level controllers
