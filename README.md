@@ -15,9 +15,6 @@ python imitation_learning.py
 ```
 
 ## Real-world experiment
-Coming soon...
-
-### Low level control and communication
 Firmware and serial communication API can be found at [rgSerial](https://github.com/yuanshenli/rgSerial).
 
 ## Mechanical Design
